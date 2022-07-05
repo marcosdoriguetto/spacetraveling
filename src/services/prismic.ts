@@ -1,18 +1,20 @@
-import * as prismic from '@prismicio/client';
-import { HttpRequestLike } from '@prismicio/client';
-import { enableAutoPreviews } from '@prismicio/next';
+import * as prismic from '@prismicio/client'
+import { HttpRequestLike } from '@prismicio/client'
+import { enableAutoPreviews } from '@prismicio/next'
 
 export interface PrismicConfig {
-  req?: HttpRequestLike;
+  req?: HttpRequestLike
 }
 
 export function getPrismicClient(config: PrismicConfig): prismic.Client {
-  const client = prismic.createClient(process.env.PRISMIC_API_ENDPOINT);
+  const client = prismic.createClient(
+    process.env.PRISMIC_API_ENDPOINT || 'http://localhost:3000'
+  )
 
   enableAutoPreviews({
     client,
-    req: config.req,
+    req: config.req
   })
 
-  return client;
+  return client
 }
