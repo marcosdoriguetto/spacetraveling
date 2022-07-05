@@ -1,3 +1,21 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
+import styles from './header.module.scss'
+
 export default function Header() {
-  // TODO
+  return (
+    <header className={styles.headerContainer}>
+      <Link href="/">
+        <a>
+          <Image
+            width={238}
+            height={25}
+            src="/images/logo.svg"
+            alt="Logo spacetraveling"
+          />
+        </a>
+      </Link>
+    </header>
+  )
 }
