@@ -1,10 +1,11 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import { useState } from 'react'
 
-import { AiOutlineCalendar } from 'react-icons/ai'
-import { BsPerson } from 'react-icons/bs'
+import { AiOutlineCalendar as CalendarIcon } from 'react-icons/ai'
+import { BsPerson as PersonIcon } from 'react-icons/bs'
 
 import { getPrismicClient } from '../services/prismic'
 
@@ -12,9 +13,14 @@ import { dateFormat } from '../helpers/dateFormat'
 
 import { HomeProps, Post } from './Home.interface'
 
+import { IconInformation } from '../components/IconInformation'
+
 import styles from './home.module.scss'
+import commonStyles from '../styles/common.module.scss'
 
 export default function Home({ postsPagination }: HomeProps) {
+  const { isFallback } = useRouter()
+
   const [nextPage, setNextPage] = useState<string | null>(
     postsPagination.next_page
   )
@@ -35,8 +41,12 @@ export default function Home({ postsPagination }: HomeProps) {
       })
   }
 
+  if (isFallback) {
+    return <div>Loading...</div>
+  }
+
   return (
-    <main>
+    <main className={commonStyles.container}>
       <section className={styles.posts}>
         {posts.map(post => (
           <Link key={post.uid} href={`/post/${post.uid}`}>
@@ -47,14 +57,16 @@ export default function Home({ postsPagination }: HomeProps) {
                   <p>{post.data.subtitle}</p>
                 </div>
 
-                <div className={styles.postFooter}>
-                  <span>
-                    <AiOutlineCalendar fontSize="1.25rem" />
-                    {post.first_publication_date}
-                  </span>
-                  <span>
-                    <BsPerson fontSize="1.25rem" /> {post.data.author}
-                  </span>
+                <div className={commonStyles.postIconInformationContainer}>
+                  <IconInformation
+                    icon={() => <CalendarIcon fontSize="1.25rem" />}
+                    information={post.first_publication_date as string}
+                  />
+
+                  <IconInformation
+                    icon={() => <PersonIcon fontSize="1.25rem" />}
+                    information={post.data.author}
+                  />
                 </div>
               </div>
             </a>
@@ -74,7 +86,7 @@ export default function Home({ postsPagination }: HomeProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [],
-    fallback: 'blocking'
+    fallback: true
   }
 }
 
@@ -97,6 +109,6 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       postsPagination
     },
-    revalidate: 30 * 60 // 30 minutes
+    revalidate: 60 * 30 // 30 minutes
   }
 }
