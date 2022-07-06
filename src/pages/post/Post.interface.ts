@@ -1,3 +1,5 @@
+import { ParsedUrlQuery } from 'querystring'
+
 interface Post {
   first_publication_date: string | null
   data: {
@@ -18,4 +20,8 @@ interface Post {
 
 export interface PostProps {
   post: Post
+}
+
+export interface IParams extends ParsedUrlQuery {
+  slug: string
 }

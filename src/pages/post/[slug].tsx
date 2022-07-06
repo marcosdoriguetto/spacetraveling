@@ -19,7 +19,7 @@ import { getPrismicClient } from '../../services/prismic'
 import commonStyles from '../../styles/common.module.scss'
 import styles from './post.module.scss'
 
-import { PostProps } from './Post.interface'
+import { IParams, PostProps } from './Post.interface'
 
 export default function Post({ post }: PostProps) {
   const { isFallback } = useRouter()
@@ -78,17 +78,23 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params
+  const { slug } = params as IParams
   const prismic = getPrismicClient({})
 
   const response = await prismic.getByUID('posts', String(slug), {})
 
   const amountWordsInBody = RichText.asText(
-    response.data.content.reduce((acc, cur) => [...acc, ...cur.body], [])
+    response.data.content.reduce(
+      (acc: string[], cur: { body: string[] }) => [...acc, ...cur.body],
+      []
+    )
   ).split(' ').length
 
   const amountWordsInHeading = RichText.asText(
-    response.data.content.reduce((acc, cur) => [...acc, ...cur.heading], [])
+    response.data.content.reduce(
+      (acc: string[], cur: { heading: string }) => [...acc, cur.heading],
+      []
+    )
   ).split(' ').length
 
   const readingTime = Math.ceil(
