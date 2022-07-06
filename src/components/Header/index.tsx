@@ -9,12 +9,7 @@ export default function Header() {
     <header className={`${styles.headerContainer} ${commonStyles.container}`}>
       <Link href="/">
         <a>
-          <Image
-            width={238}
-            height={25}
-            src="/images/logo.svg"
-            alt="Logo spacetraveling"
-          />
+          <Image width={238} height={25} src="/images/logo.svg" alt="logo" />
         </a>
       </Link>
     </header>
