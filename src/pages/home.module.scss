@@ -7,30 +7,17 @@ main {
 
       .postHeader {
         h2 {
+          font-size: 1.75rem;
           color: var(--white);
           margin-bottom: 0.5rem;
         }
 
         p {
+          font-size: 1.15rem;
           color: var(--gray-200);
         }
 
         margin-bottom: 1rem;
-      }
-
-      .postFooter {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-
-        span {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          gap: 0.25rem;
-
-          color: var(--gray-400);
-        }
       }
     }
   }
