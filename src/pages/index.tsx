@@ -42,7 +42,7 @@ export default function Home({ postsPagination }: HomeProps) {
   }
 
   if (isFallback) {
-    return <div>Loading...</div>
+    return <div>Carregando...</div>
   }
 
   return (

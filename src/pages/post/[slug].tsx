@@ -24,8 +24,33 @@ import { IParams, PostProps } from './Post.interface'
 export default function Post({ post }: PostProps) {
   const { isFallback } = useRouter()
 
+  const amountWordsInBody = RichText.asText(
+    post.data.content.reduce(
+      (acc: { text: string }[], cur) => [...acc, ...cur.body],
+      []
+    )
+  ).split(' ').length
+
+  const amountWordsInHeading = RichText.asText(
+    post.data.content.reduce(
+      (acc: string[], cur) => [...acc, ...cur.heading],
+      []
+    )
+  ).split(' ').length
+
+  const readingTime = Math.ceil(
+    (amountWordsInBody + amountWordsInHeading) / 200
+  )
+
+  const postFormat = {
+    first_publication_date: dateFormat(
+      post.first_publication_date
+    )?.toLowerCase(),
+    data: post.data
+  }
+
   if (isFallback) {
-    return <div>Loading...</div>
+    return <div>Carregando...</div>
   }
 
   return (
@@ -35,26 +60,26 @@ export default function Post({ post }: PostProps) {
       </div>
 
       <main className={`${commonStyles.container} ${styles.postContent}`}>
-        <h1>{post.data.title}</h1>
+        <h1>{postFormat.data.title}</h1>
 
         <div className={commonStyles.postIconInformationContainer}>
           <IconInformation
             icon={() => <CalendarIcon fontSize="1.25rem" />}
-            information={post.first_publication_date as string}
+            information={postFormat.first_publication_date as string}
           />
 
           <IconInformation
             icon={() => <PersonIcon fontSize="1.25rem" />}
-            information={post.data.author}
+            information={postFormat.data.author}
           />
 
           <IconInformation
             icon={() => <ClockIcon fontSize="1.25rem" />}
-            information={`${post.data.readingTime} min`}
+            information={`${String(readingTime)} min`}
           />
         </div>
         <div>
-          {post.data.content.map(({ heading, body }) => (
+          {postFormat.data.content.map(({ heading, body }) => (
             <div className={styles.postSection} key={heading}>
               <h2>{heading}</h2>
 
@@ -71,8 +96,18 @@ export default function Post({ post }: PostProps) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient({})
+
+  const response = await prismic.getByType('posts')
+
+  const paths = response.results.map(post => ({
+    params: {
+      slug: post.uid as string
+    }
+  }))
+
   return {
-    paths: [],
+    paths,
     fallback: true
   }
 }
@@ -83,36 +118,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const response = await prismic.getByUID('posts', String(slug), {})
 
-  const amountWordsInBody = RichText.asText(
-    response.data.content.reduce(
-      (acc: string[], cur: { body: string[] }) => [...acc, ...cur.body],
-      []
-    )
-  ).split(' ').length
-
-  const amountWordsInHeading = RichText.asText(
-    response.data.content.reduce(
-      (acc: string[], cur: { heading: string }) => [...acc, cur.heading],
-      []
-    )
-  ).split(' ').length
-
-  const readingTime = Math.ceil(
-    (amountWordsInBody + amountWordsInHeading) / 200
-  )
-
-  const post = {
-    first_publication_date: dateFormat(response.first_publication_date),
-    data: {
-      ...response.data,
-      updatedAt: dateFormat(response.last_publication_date),
-      readingTime: String(readingTime)
-    }
-  }
-
   return {
     props: {
-      post
+      post: response
     },
     revalidate: 60 * 60 * 24 // 24 hours
   }

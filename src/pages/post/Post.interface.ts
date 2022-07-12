@@ -14,7 +14,6 @@ interface Post {
         text: string
       }[]
     }[]
-    readingTime: string
   }
 }
 
