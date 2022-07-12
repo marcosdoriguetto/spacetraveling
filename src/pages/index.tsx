@@ -19,12 +19,15 @@ import styles from './home.module.scss'
 import commonStyles from '../styles/common.module.scss'
 
 export default function Home({ postsPagination }: HomeProps) {
-  const { isFallback } = useRouter()
-
   const [nextPage, setNextPage] = useState<string | null>(
     postsPagination.next_page
   )
-  const [posts, setPosts] = useState(postsPagination.results)
+  const [posts, setPosts] = useState(
+    postsPagination.results.map(result => ({
+      ...result,
+      first_publication_date: dateFormat(result.first_publication_date)
+    }))
+  )
 
   function loadMorePosts() {
     fetch(nextPage as string)
@@ -39,10 +42,6 @@ export default function Home({ postsPagination }: HomeProps) {
           }))
         ])
       })
-  }
-
-  if (isFallback) {
-    return <div>Carregando...</div>
   }
 
   return (
@@ -83,13 +82,6 @@ export default function Home({ postsPagination }: HomeProps) {
   )
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: true
-  }
-}
-
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({})
 
@@ -99,10 +91,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const postsPagination = {
     next_page: response.next_page,
-    results: response.results.map(result => ({
-      ...result,
-      first_publication_date: dateFormat(result.first_publication_date)
-    }))
+    results: response.results
   }
 
   return {

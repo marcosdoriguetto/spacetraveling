@@ -43,9 +43,7 @@ export default function Post({ post }: PostProps) {
   )
 
   const postFormat = {
-    first_publication_date: dateFormat(
-      post.first_publication_date
-    )?.toLowerCase(),
+    first_publication_date: dateFormat(post.first_publication_date),
     data: post.data
   }
 
